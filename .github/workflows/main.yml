@@ -22,7 +22,14 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-        pip install -r requirements.txt
+        pip install PyQt6 PyQt6-Qt6
+        # سنقوم بتثبيت المتطلبات المتبقية تلقائياً في حال وجود ملف المتطلبات
+        if (Test-Path requirements.txt) { pip install -r requirements.txt }
+
+    - name: Fix QPrinter Import Error in Code
+      run: |
+        # هذا الأمر يبحث في ملف الواجهة عن الاستدعاء الخاطئ ويصلحه تلقائياً ليناسب PyQt6
+        (Get-Content ui/results_window.py) -replace "from PyQt6.QtWidgets import.*QPrinter", "from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel`nfrom PyQt6.QtPrintSupport import QPrinter" | Set-Content ui/results_window.py
 
     - name: Build Single EXE File with Core and UI Packages
       run: |
